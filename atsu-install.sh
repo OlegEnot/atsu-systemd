@@ -36,7 +36,7 @@ elif [[ -n $JAVA_HOME ]] && [[ -x "$JAVA_HOME/bin/java" ]];  then
     echo Found Java executable in JAVA_HOME
     _java="$JAVA_HOME/bin/java"
 else
-    read -r -p "Do you want to install OpenJRE 11 now? [y/N] " response
+    read -r -p "JAVA_HOME not found. Do you want to install recommended OpenJDK 11 now? [y/N] " response
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]
     then
                 echo "Installing OpenJRE 11 "

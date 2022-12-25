@@ -15,7 +15,14 @@ chmod u+x atsu-uninstall.sh && \
 ./atsu-uninstall.sh
 ```
 #
-The script works on debian based distributions
+
+**Important points:**
+
+> A user is created, in the user group on behalf of which the script for the service with the home directory /opt/atsumeru is launched.
+
+> The content is supposed to be stored in the same directory (symlinks are supported).
+
+> The script works on debian based distributions
 
 #
 
