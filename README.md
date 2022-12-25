@@ -1,6 +1,20 @@
-[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/OlegEnot/atsu-systemd?color=blue&label=Latest%20release&sort=semver)](https://github.com/OlegEnot/atsu-systemd/releases) [![GitHub all releases](https://img.shields.io/github/downloads/OlegEnot/atsu-systemd/total?color=blue&label=Downloads)](https://github.com/OlegEnot/atsu-systemd/releases)
+# Atsumeru server - install/unistall systemd service for BASH
 
-# Atsumeru - install/unistall systemd service for BASH
+Downloading the installation script and executing it (I strongly recommend that you run it as a non-root user):
+```
+curl -s https://api.github.com/repos/OlegEnot/atsu-systemd/releases/latest | grep "browser_download_url.*atsu-install.sh" |  cut -d : -f 2,3 |  tr -d \" |  wget -O atsu-install.sh  -i - && \
+chmod u+x atsu-install.sh && \
+./atsu-install.sh
+```
+#
+
+Loading the deletion script and executing it (I strongly recommend that you run it as a non-root user):
+```
+curl -s https://api.github.com/repos/OlegEnot/atsu-systemd/releases/latest | grep "browser_download_url.*atsu-uninstall.sh" |  cut -d : -f 2,3 |  tr -d \" |  wget -O atsu-uninstall.sh  -i - && \
+chmod u+x atsu-uninstall.sh && \
+./atsu-uninstall.sh
+```
+#
 
 [GitHub](https://github.com/AtsumeruDev/Atsumeru) for Atsumeru
 

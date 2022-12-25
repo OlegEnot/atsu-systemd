@@ -6,14 +6,12 @@ app="Atsumeru"
 repoowner="AtsumeruDev"
 dir="/opt/${app,,}"
 user="${app,,}"
-# Add path to content directory
-lib_dir="/media/library"
 update_="sudo apt update "
 install_="sudo apt install "
 RED='\033[0;31m'
 NC='\033[0m'
 
-# Запрос номера порта веб сервера
+# Web server port number request
 read -r -p "Enter the port for atsumeru web service (press ENTER if port 31337 suits you) " us_port
 if [[ $us_port -ne 0 ]];
 then
@@ -29,7 +27,7 @@ fi
 heap="4096"
 
 
-# Проверка на жаву и в случае отсутствия установка опенЖРЕ 11 (apt)
+# Checking for Java and, in case of absence, installing openJRE 11 (apt)
 echo Java JRE -
 if type -p java; then
     echo Found Java executable in PATH
@@ -55,16 +53,16 @@ if [[ "$_java" ]]; then
     echo Version "$version"
 fi
 
-# Добавить юзера от которого будет запуск сервиса атсу, юзер будет в группе от которого был запущен скрипт
+# Add a user from which the atsu service will be launched, the user will be in the group from which the script was launched
 sudo useradd ${user} -d ${dir} -g $USER -N -m
 
-# Разрешить юзеру от которого запущен скрипт изменять директорию ${dir} атсу
+# Allow the user running the script to change the directory ${dir} atsu
 sudo chmod -R 774 ${dir}
 
-# Загрузка ласт версии жарника с гитхаба
+# Downloading the last version of the fire engine from github
 sudo curl -s https://api.github.com/repos/${repoowner}/${app}/releases/latest | grep "browser_download_url.*.jar" |  cut -d : -f 2,3 |  tr -d \" |  wget -O ${dir}/${app}.jar -i -
 
-# Создание файла переменных сервиса, если сильно не в моготу, после установки можно пометять параметры.
+# Creating a file of service variables, if it’s not very easy, after installation you can mark the parameters
 sudo cat << EOF > ${dir}/.env
 port=${port}
 heap=${heap}
@@ -72,7 +70,7 @@ app=${app}
 user=${app,,}
 EOF
 
-# Создание файла сервиса и его запуск
+# Creating a service file and running it
 sudo cat << EOF > $dir/${app,,}.service
 
 [Unit]
@@ -103,8 +101,8 @@ sudo systemctl daemon-reload
 sudo systemctl start ${app,,}.service
 sudo systemctl enable ${app,,}.service
 
-# Вывод в консоль пароля Админа из логов запуска если таковой там имеется
-sleep 10
+# Output to the console the Admin password from the launch logs, if any
+sleep 10 # Костыль
 pass="$(sudo journalctl -u ${app,,} | grep -oP 'Admin user created with password = \K.*$' | tail -1)"
 echo -e Admin user created with password  ${RED}${pass##*:}${NC}
 
