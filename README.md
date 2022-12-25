@@ -15,9 +15,10 @@ chmod u+x atsu-uninstall.sh && \
 ./atsu-uninstall.sh
 ```
 #
-
-[GitHub](https://github.com/AtsumeruDev/Atsumeru) for Atsumeru
+The script works on debian based distributions
 
 #
+
+[GitHub](https://github.com/AtsumeruDev/Atsumeru) for Atsumeru
 
 All info is available on [Atsumeru](https://atsumeru.xyz/) website
