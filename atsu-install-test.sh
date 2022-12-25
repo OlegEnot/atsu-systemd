@@ -110,7 +110,7 @@ pass="$(sudo journalctl -u ${app,,} --since "1min ago" | grep -oP 'Admin user cr
 max_retry=10
 counter=0
 
-until [ -n "$var" ] || [ $counter -ge $max_retry ]
+until [ -n "$pass" ] || [ $counter -ge $max_retry ]
 do
         sleep 30
         pass="$(sudo journalctl -u ${app,,} --since "1min ago" | grep -oP 'Admin user created with password = \K.*$' | tail -1)"

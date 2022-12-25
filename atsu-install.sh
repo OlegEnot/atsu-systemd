@@ -102,9 +102,26 @@ sudo systemctl start ${app,,}.service
 sudo systemctl enable ${app,,}.service
 
 # Output to the console the Admin password from the launch logs, if any
-sleep 10 # Костыль
-pass="$(sudo journalctl -u ${app,,} | grep -oP 'Admin user created with password = \K.*$' | tail -1)"
-echo -e Admin user created with password  ${RED}${pass##*:}${NC}
+
+sleep 10
+pass="$(sudo journalctl -u ${app,,} --since "1min ago" | grep -oP 'Admin user created with password = \K.*$' | tail -1)"
+max_retry=10
+counter=0
+
+until [ -n "$pass" ] || [ $counter -ge $max_retry ]
+do
+        sleep 30
+        pass="$(sudo journalctl -u ${app,,} --since "1min ago" | grep -oP 'Admin user created with password = \K.*$' | tail -1)"
+        ((counter++))
+done
+
+if  [ $counter -ge $max_retry ]
+then
+        echo "service not started succesfully, check logs.."
+        exit
+else
+        echo -e Admin user created with password  ${RED}${pass##*:}${NC}
+fi
 
 adr=$(hostname -I | awk '{ print $1 }')
 echo -e The server is available at\: ${RED}http\://"$adr:$port"${NC}
