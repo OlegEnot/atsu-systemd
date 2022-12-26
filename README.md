@@ -16,7 +16,7 @@ chmod u+x atsu-uninstall.sh && \
 ```
 #
 
-**Important points:**
+## Important points:
 
 - A user is created, in the user group on behalf of which the script for the service with the home directory /opt/atsumeru is launched.
 
@@ -29,3 +29,7 @@ chmod u+x atsu-uninstall.sh && \
 [GitHub](https://github.com/AtsumeruDev/Atsumeru) for Atsumeru
 
 All info is available on [Atsumeru](https://atsumeru.xyz/) website
+
+## Acknowledgments
+
+* [AtsumeruDev](https://t.me/atsumeru_app)
