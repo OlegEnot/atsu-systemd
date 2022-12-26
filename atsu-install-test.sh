@@ -23,10 +23,10 @@ echo "port $us_port"
 if [[ $us_port -ne 0 ]];
 then
         port="$us_port"
-        whiptail --ok-button Done --msgbox "The server will listen on the port $port" 10 30 ;
+        whiptail --ok-button Done --msgbox "The server will listen on the port $port" 10 30 3>&1 1>&2 2>&3 ;
 else
         port="31337"
-        whiptail --ok-button Done --msgbox "The server will listen on the default port $port" 10 30 ;
+        whiptail --ok-button Done --msgbox "The server will listen on the default port $port" 10 30 3>&1 1>&2 2>&3 ;
 fi
 
 # If there are problems with server, or if errors like <OutOfMemoryException> appear in the console/logs, you probably need to increase maximum amount of memory that Atsumeru can use in megabytes.
@@ -39,7 +39,7 @@ if type -p java; then
 elif [[ -n $JAVA_HOME ]] && [[ -x "$JAVA_HOME/bin/java" ]];  then
         _java="$JAVA_HOME/bin/java"
 else
-        if (whiptail --title "install OpenJDK 11" --yesno "JAVA_HOME not found. Do you want to install recommended OpenJDK 11 now?" 8 78 --no-button "No (abort install)" --yes-button "Yes"); then
+        if (whiptail --title "install OpenJDK 11" --yesno "JAVA_HOME not found. Do you want to install recommended OpenJDK 11 now?" 10 30 --no-button "No (abort install)" --yes-button "Yes" 3>&1 1>&2 2>&3); then
                 $update_
                 $install_ openjdk-11-jre -y
         else
@@ -116,12 +116,12 @@ done
 if  [ $counter -ge $max_retry ]
 then
         echo "service not started succesfully, check logs.."
-        whiptail --msgbox --title "Error!" "service not started succesfully, check logs.." 25 80
+        whiptail --msgbox --title "Error!" "service not started succesfully, check logs.." 25 80 3>&1 1>&2 2>&3
         exit
 else
-        whiptail --msgbox --title "Admin password" "Admin user created with password  ${RED}${pass##*:}${NC}" 25 80
+        whiptail --msgbox --title "Admin password" "Admin user created with password ${pass##*:}" 25 80 3>&1 1>&2 2>&3
 fi
 
 adr=$(hostname -I | awk '{ print $1 }')
-whiptail --msgbox --title "Atsumeru adress" "The server is available at\: ${RED}http\://"$adr:$port"${NC}" 25 80
-whiptail --msgbox --title "End" "Enter to the end \n${RED}Don't forget to change your password!${NC}" 25 80
+whiptail --msgbox --title "Atsumeru adress" "The server is available at\: http\://"$adr:$port"" 25 80 3>&1 1>&2 2>&3
+whiptail --msgbox --title "End" "Enter to the end \nDon't forget to change your password!" 25 80 3>&1 1>&2 2>&3
