@@ -1,8 +1,8 @@
-# Atsumeru server - install/unistall systemd service for BASH
+## Atsumeru server - install/unistall systemd service for BASH
 
 Downloading the installation script and executing it (I strongly recommend that you run it as a non-root user):
 ```shell
-curl -s https://api.github.com/repos/OlegEnot/atsu-systemd/releases/latest | grep "browser_download_url.*atsu-install.sh" |  cut -d : -f 2,3 |  tr -d \" |  wget -O atsu-install.sh  -i - && \
+curl -s https://api.github.com/repos/OlegEnot/atsu-systemd/releases/latest | grep "browser_download_url.*atsu-install.sh" |  cut -d : -f 2,3 |  tr -d \" |  wget -q -O atsu-install.sh  -i - && \
 chmod u+x atsu-install.sh && \
 ./atsu-install.sh
 ```
@@ -10,7 +10,7 @@ chmod u+x atsu-install.sh && \
 
 Downloading the deletion script and executing it (I strongly recommend that you run it as a non-root user):
 ```shell
-curl -s https://api.github.com/repos/OlegEnot/atsu-systemd/releases/latest | grep "browser_download_url.*atsu-uninstall.sh" |  cut -d : -f 2,3 |  tr -d \" |  wget -O atsu-uninstall.sh  -i - && \
+curl -s https://api.github.com/repos/OlegEnot/atsu-systemd/releases/latest | grep "browser_download_url.*atsu-uninstall.sh" |  cut -d : -f 2,3 |  tr -d \" |  wget -q -O atsu-uninstall.sh  -i - && \
 chmod u+x atsu-uninstall.sh && \
 ./atsu-uninstall.sh
 ```
