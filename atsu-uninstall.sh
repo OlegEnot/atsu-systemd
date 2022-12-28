@@ -1,41 +1,53 @@
 #!/bin/bash
-
+set -eou pipefail
 # env
 app="Atsumeru"
-dir="/opt/${app,,}"
-user="${app,,}"
-purge_="sudo apt purge"
-RED='\033[0;31m'
-NC='\033[0m'
+H='10'
+W='45'
 
-read -r -p "Do you want to remove the Atsumeru server service?? [y/N] " response_sys
-    if [[ "$response_sys" =~ ^([yY][eE][sS]|[yY])+$ ]]
-    then
-        echo "Removing a ${app} service!"
+if [ "$(id -u)" -eq 0 ]; then
+    whiptail --msgbox --title " ( ；｀ヘ´) " "Run script not as root/sudo!" $H $W
+    exit 1
+fi
+
+if (whiptail --title " (」°ﾛ°)｣ " --yesno "Do you want to remove the Atsumeru server service?." $H $W 3>&1 1>&2 2>&3); then
+exitstatus=$?
+    psw=$(whiptail --title " ╭⚈¬⚈╮ " --passwordbox "Enter your \"sudo\" password and choose Ok to continue." $H $W 3>&1 1>&2 2>&3)
+    if  ( sudo -S -v <<< "$psw" ); then
+        echo
+        else
+        whiptail --title " (ಥ﹃ಥ) " --msgbox "No valid sudo password" $H $W 3>&1 1>&2 2>&3
+        exit 1
+    fi
+
+    if [ $exitstatus = 0 ]; then
         sudo systemctl stop ${app,,}.service
-		sudo systemctl disable ${app,,}.service
-		sudo systemctl daemon-reload
+        sudo systemctl disable ${app,,}.service
+        sudo systemctl daemon-reload
     else
-		echo "Deletion aborted by user !"
-		exit
+        whiptail --title " (☉ε ⊙ﾉ)ﾉ " --msgbox "Operation Cancel" $H $W
     fi
+else
+    whiptail --title " ok! (￣-￣)ゞ " --msgbox "Deletion aborted by user !" $H $W 3>&1 1>&2 2>&3
+    exit
+fi
 
-read -r -p "ATTENTION!!! THIS WILL DELETE ALL FILES IN THE DIRECTORY!!! Do you want to delete the server directory? [y/N] " response_dir
-    if [[ "$response_dir" =~ ^([yY][eE][sS]|[yY])+$ ]]
-    then
-                echo "Deleting a server-user and a server directory with all data!"
-                sudo userdel -r ${app,,}
-        else
-               echo "Deletion a server-user and a server directory aborted by user !"
-    fi
+if (whiptail --title " (シ. .)シ " --yesno "ATTENTION!!! THIS WILL DELETE ALL FILES IN THE DIRECTORY!!! \nDo you want to delete the server directory?" $H $W 3>&1 1>&2 2>&3); then
+    sudo userdel -r ${app,,}
+else
+    whiptail --title " (ﾟρﾟ)ﾉ " --msgbox "Deletion a server-user and a server directory aborted by user !" $H $W 3>&1 1>&2 2>&3
+    exit
+fi
 echo
-read -r -p "Do you want to purge OpenJRE 11 now? [y/N] " response_jre
-    if [[ "$response_jre" =~ ^([yY][eE][sS]|[yY])+$ ]]
-    then
-                echo "Purge OpenJRE 11 "
-                $purge_ openjdk-11-jre -y
-        else
-               echo "Purge OpenJRE 11 aborted !"
-    fi
-	
-echo "Removal completed. Thank you for using Atsumeru!"
+
+if (whiptail --title " ＼(☆o◎)／ " --yesno "Do you want to purge OpenJRE 11 now?" $H $W 3>&1 1>&2 2>&3); then
+    sudo apt purge openjdk-11-jre -y
+    sudo apt autopurge -y
+    unset psw
+else
+    whiptail --title " (☉ε ⊙ﾉ)ﾉ " --msgbox "Purge OpenJRE 11 aborted !" $H $W 3>&1 1>&2 2>&3
+    unset psw
+    exit
+fi
+
+whiptail --title " (o^▽^o) " --msgbox "Removal completed.\nThank you for using Atsumeru!" $H $W 3>&1 1>&2 2>&3
