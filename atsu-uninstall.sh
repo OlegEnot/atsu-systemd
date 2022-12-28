@@ -2,8 +2,8 @@
 set -eou pipefail
 # env
 app="Atsumeru"
-H='10'
-W='45'
+H='15'
+W='65'
 
 if [ "$(id -u)" -eq 0 ]; then
     whiptail --msgbox --title " ( ；｀ヘ´) " "Run script not as root/sudo!" $H $W

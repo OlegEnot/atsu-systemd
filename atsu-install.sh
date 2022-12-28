@@ -8,70 +8,78 @@ dir="/opt/${app,,}"
 user="${app,,}"
 update_="sudo apt update "
 install_="sudo apt install "
-RED='\033[0;31m'
-NC='\033[0m'
+H='15'
+W='65'
+
+if [ "$(id -u)" -eq 0 ]; then
+        whiptail --msgbox --title " ( ；｀ヘ´) " "Run script not as root!" $H $W 3>&1 1>&2 2>&3
+        exit 1
+fi
+
+if (whiptail --title " (」°ﾛ°)｣ " --yesno "Do you want to install the Atsumeru server service?." $H $W 3>&1 1>&2 2>&3); then
+
+    psw=$(whiptail --title " ╭⚈¬⚈╮ " --passwordbox "Enter your \"sudo\" password and choose Ok to continue." $H $W 3>&1 1>&2 2>&3)
+
+    if ( sudo -S -v <<< $psw ); then
+        echo
+        else
+        whiptail --title " (ಥ﹃ಥ) " --msgbox "No valid sudo password" $H $W 3>&1 1>&2 2>&3
+        exit 1
+    fi
+else
+    whiptail --title " ok! (￣-￣)ゞ " --msgbox "Install aborted by user !" $H $W 3>&1 1>&2 2>&3
+    exit
+fi
 
 # Web server port number request
-read -r -p "Enter the port for atsumeru web service (press ENTER if port 31337 suits you) " us_port
+us_port=$(whiptail --inputbox "Enter the port for atsumeru web service (press ENTER if port 31337 suits you)" $H $W 3>&1 1>&2 2>&3)
+
 if [[ $us_port -ne 0 ]];
 then
         port="$us_port"
-        echo The server will listen on the port \-\> "$port" ;
 else
         port="31337"
-        echo The server will listen on the default port \-\> "$port" ;
 fi
 
-# If there are problems with server, or if errors like <OutOfMemoryException> appear in the console/logs, you probably need to increase maximum amount of memory that Atsumeru can use in megabytes.
-
-heap="4096"
-
+pmem=$(free -t | grep -oP '\d+' | sed '1!d')
+if [ "$pmem" -lt 1048576 ]; then
+        if (whiptail --title " ┌( ‘o’)┐ " --yesno "You don't have enough RAM, more than ~1 GB is recommended." $H $W --no-button "No (abort install)" --yes-button "Don't care, LET'S GO!" 3>&1 1>&2 2>&3); then
+                echo
+        else
+                exit
+        fi
+fi
 
 # Checking for Java and, in case of absence, installing openJRE 11 (apt)
-echo Java JRE -
 if type -p java; then
-    echo Found Java executable in PATH
-    _java=java
-elif [[ -n $JAVA_HOME ]] && [[ -x "$JAVA_HOME/bin/java" ]];  then
-    echo Found Java executable in JAVA_HOME
-    _java="$JAVA_HOME/bin/java"
+        _java=java
 else
-    read -r -p "JAVA_HOME not found. Do you want to install recommended OpenJDK 11 now? [y/N] " response
-    if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]
-    then
-                echo "Installing OpenJRE 11 "
+        if (whiptail --title " ｢(ﾟﾍﾟ)　Errrrm… " --yesno "JAVA_HOME not found. Do you want to install recommended OpenJRE 11 now?" $H $W --no-button "No (abort install)" --yes-button "Yes" 3>&1 1>&2 2>&3); then
                 $update_
                 $install_ openjdk-11-jre -y
         else
-               echo "Installation aborted !"
-               exit
-    fi
-fi
-
-if [[ "$_java" ]]; then
-    version=$("$_java" -version 2>&1 | awk -F '"' '/version/ {print $2}')
-    echo Version "$version"
+                exit
+        fi
 fi
 
 # Add a user from which the atsu service will be launched, the user will be in the group from which the script was launched
-sudo useradd ${user} -d ${dir} -g $USER -N -m
+sudo useradd "${user}" -d "${dir}" -g "$USER" -N -m
 
 # Allow the user running the script to change the directory ${dir} atsu
-sudo chmod -R 774 ${dir}
+sudo chmod -R 774 "${dir}"
 
 # Downloading the last version of the fire engine from github
-sudo curl -s https://api.github.com/repos/${repoowner}/${app}/releases/latest | grep "browser_download_url.*.jar" |  cut -d : -f 2,3 |  tr -d \" |  wget -O ${dir}/${app}.jar -i -
+curl -s https://api.github.com/repos/${repoowner}/${app}/releases/latest | grep "browser_download_url.*.jar" |  cut -d : -f 2,3 |  tr -d \" |  wget -q -O "${dir}"/${app}.jar -i -
 
 # Creating a file of service variables, if it’s not very easy, after installation you can mark the parameters
-sudo cat << EOF > ${dir}/.env
+cat << EOF > "${dir}"/.env
 port=${port}
-heap=${heap}
 app=${app}
 user=${app,,}
 EOF
 
 # Creating a service file and running it
-sudo cat << EOF > $dir/${app,,}.service
+cat << EOF > "$dir"/${app,,}.service
 
 [Unit]
 Description = ${app}
@@ -82,7 +90,7 @@ User = ${user}
 Group = $USER
 Type = simple
 EnvironmentFile=${dir}/.env
-ExecStart = java -Xmx${heap}m -Dserver.port=${port} -jar ${app}.jar
+ExecStart = java -Dserver.port=${port} -jar ${app}.jar
 ExecReload = /bin/kill -HUP \${MAINPID}
 ExecStop = /bin/kill -INT \${MAINPID}
 
@@ -96,13 +104,12 @@ LimitNOFILE = 4096
 WantedBy = multi-user.target
 EOF
 
-sudo mv -f $dir/${app,,}.service /etc/systemd/system/${app,,}.service
+sudo mv -f "$dir"/${app,,}.service /etc/systemd/system/${app,,}.service
 sudo systemctl daemon-reload
 sudo systemctl start ${app,,}.service
 sudo systemctl enable ${app,,}.service
 
 # Output to the console the Admin password from the launch logs, if any
-
 sleep 10
 pass="$(sudo journalctl -u ${app,,} --since "1min ago" | grep -oP 'Admin user created with password = \K.*$' | tail -1)"
 max_retry=10
@@ -118,11 +125,9 @@ done
 if  [ $counter -ge $max_retry ]
 then
         echo "service not started succesfully, check logs.."
+        whiptail --msgbox --title " Σ(‘◉⌓◉’) " "Service not started succesfully, check logs..." $H $W 3>&1 1>&2 2>&3
         exit
 else
-        echo -e Admin user created with password  ${RED}${pass##*:}${NC}
+        adr=$(hostname -I | awk '{ print $1 }')
+        whiptail --msgbox --title " (◕‿◕) " "< Admin > user created with password < ${pass##*:} >\nThe server is available at: < http://""$adr":"$port"" > \n\n\nDon't forget to change your password!" $H $W 3>&1 1>&2 2>&3
 fi
-
-adr=$(hostname -I | awk '{ print $1 }')
-echo -e The server is available at\: ${RED}http\://"$adr:$port"${NC}
-read -r -p "Enter to the end"

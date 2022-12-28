@@ -8,8 +8,6 @@ dir="/opt/${app,,}"
 user="${app,,}"
 update_="sudo apt update "
 install_="sudo apt install "
-#RED='\033[0;31m'
-#NC='\033[0m'
 H='15'
 W='65'
 
@@ -23,8 +21,6 @@ if (whiptail --title " (」°ﾛ°)｣ " --yesno "Do you want to install the Ats
     psw=$(whiptail --title " ╭⚈¬⚈╮ " --passwordbox "Enter your \"sudo\" password and choose Ok to continue." $H $W 3>&1 1>&2 2>&3)
 
     if ( sudo -S -v <<< $psw ); then
-        #whiptail --title "(ಥ﹃ಥ)" --msgbox "No valid password" $H $W 3>&1 1>&2 2>&3
-        #exit 1
         echo
         else
         whiptail --title " (ಥ﹃ಥ) " --msgbox "No valid sudo password" $H $W 3>&1 1>&2 2>&3
@@ -41,16 +37,11 @@ us_port=$(whiptail --inputbox "Enter the port for atsumeru web service (press EN
 if [[ $us_port -ne 0 ]];
 then
         port="$us_port"
-#        whiptail --ok-button Done --msgbox "The server will listen on the port $port" $H $W 3>&1 1>&2 2>&3 ;
 else
         port="31337"
-#        whiptail --ok-button Done --msgbox "The server will listen on the default port $port" $H $W 3>&1 1>&2 2>&3 ;
 fi
 
-# If there are problems with server, or if errors like <OutOfMemoryException> appear in the console/logs, you probably need to increase maximum amount of memory that Atsumeru can use in megabytes.
 pmem=$(free -t | grep -oP '\d+' | sed '1!d')
-#let "pmem=($pmem / 1024)"
-
 if [ "$pmem" -lt 1048576 ]; then
         if (whiptail --title " ┌( ‘o’)┐ " --yesno "You don't have enough RAM, more than ~1 GB is recommended." $H $W --no-button "No (abort install)" --yes-button "Don't care, LET'S GO!" 3>&1 1>&2 2>&3); then
                 echo
@@ -62,8 +53,6 @@ fi
 # Checking for Java and, in case of absence, installing openJRE 11 (apt)
 if type -p java; then
         _java=java
-#elif [[ -n $JAVA_HOME ]] && [[ -x "$JAVA_HOME/bin/java" ]];  then
-#        _java="$JAVA_HOME/bin/java"
 else
         if (whiptail --title " ｢(ﾟﾍﾟ)　Errrrm… " --yesno "JAVA_HOME not found. Do you want to install recommended OpenJRE 11 now?" $H $W --no-button "No (abort install)" --yes-button "Yes" 3>&1 1>&2 2>&3); then
                 $update_
