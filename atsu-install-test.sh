@@ -9,7 +9,7 @@ user="${app,,}"
 update_="sudo apt update "
 install_="sudo apt install "
 H='15'
-W='65'
+W='75'
 
 if [ "$(id -u)" -eq 0 ]; then
         whiptail --msgbox --title " ( ；｀ヘ´) " "Run script not as root!" $H $W 3>&1 1>&2 2>&3
@@ -17,7 +17,7 @@ if [ "$(id -u)" -eq 0 ]; then
 fi
 
 # Menu
-menu=$(whiptail --title "Menu example" --menu "Choose an option" $H $W 8 3>&1 1>&2 2>&3 \
+menu=$(whiptail --title " ∠( ᐛ 」∠)＿ " --menu "Choose an option" $H $W 8 3>&1 1>&2 2>&3 \
 "1" "Install the Atsumeru server service." \
 "2" "Update the Atsumeru server service." \
 "3" "Uninstall the Atsumeru server service.")
@@ -27,14 +27,14 @@ psw=$(whiptail --title " ╭⚈¬⚈╮ " --passwordbox "Enter your \"sudo\" pas
 if ( sudo -S -v <<< "$psw" ); then
         echo
 else
-        whiptail --title " (ಥ﹃ಥ) " --msgbox "No valid sudo password" $H $W 3>&1 1>&2 2>&3
+        whiptail --title " (ಥ﹃ಥ) " --msgbox "No valid sudo password?" $H $W 3>&1 1>&2 2>&3
         exit 1
 fi
 
 # ------------------------------------------------------------ menu = 1 ------------------------------------------------------------
 if [ "$menu" -eq 1 ]; then
 # Web server port number request
-us_port=$(whiptail --inputbox "Enter the port for atsumeru web service (press ENTER if port 31337 suits you)" $H $W 3>&1 1>&2 2>&3)
+us_port=$(whiptail --title " へ_(‾◡◝ )> " --inputbox "Enter the port for atsumeru web service (press ENTER if port 31337 suits you)" $H $W 3>&1 1>&2 2>&3)
 
 if [[ $us_port -ne 0 ]];
 then
@@ -127,12 +127,11 @@ done
 
 if  [ $counter -ge $max_retry ]
 then
-        echo "service not started succesfully, check logs.."
         whiptail --msgbox --title " Σ(‘◉⌓◉’) " "Service not started succesfully, check logs..." $H $W 3>&1 1>&2 2>&3
         exit
 else
         adr=$(hostname -I | awk '{ print $1 }')
-        whiptail --msgbox --title " (◕‿◕) " "< Admin > user created with password < ${pass##*:} >\nThe server is available at: < http://""$adr":"$port"" > \nUse it for authorization through Atsumeru manager.\n\nDon't forget to change your password!" $H $W 3>&1 1>&2 2>&3
+        whiptail --msgbox --title " (◕‿◕) " "< Admin > user created with password < ${pass##*:} >\nThe server is available at: < http://""$adr":"$port"" > \nUse it for authorization through 'Atsumeru manager'.\n\nDon't forget to change your password!" $H $W 3>&1 1>&2 2>&3
 fi
 fi
 # ------------------------------------------------------------ end menu = 1 ------------------------------------------------------------
@@ -142,10 +141,9 @@ if [ "$menu" -eq 2 ]; then
         stat=$(sudo systemctl show -p ActiveState --value ${app,,})
         if [ "$stat" == "active" ]; then
                 curl -s https://api.github.com/repos/${repoowner}/${app}/releases/latest | grep "browser_download_url.*.jar" |  cut -d : -f 2,3 |  tr -d \" |  wget -q -O /tmp/${app}.jar -i -
+                # Check atsumeru version
                 CurrV=$(unzip -p -c "$dir"/"$app".jar META-INF/MANIFEST.MF | grep -oP 'Implementation-Version: \K\d+.*\b')
                 ExpecV=$(unzip -p -c /tmp/"$app".jar META-INF/MANIFEST.MF | grep -oP 'Implementation-Version: \K\d+.*\b')
-                echo "$CurrV"
-                echo "$ExpecV"
                 if [ "$CurrV" == "$ExpecV" ]; then
                         whiptail --title " ok! (￣-￣)ゞ " --msgbox "No need update !" $H $W 3>&1 1>&2 2>&3
                 else
@@ -153,14 +151,14 @@ if [ "$menu" -eq 2 ]; then
                         if [[ $versions = "$(sort -V <<< "$versions")" ]]; then
                                 echo 'update run!'
                                 sudo systemctl stop ${app,,}.service
-                                mv -f /tmp/${app,,}.jar "$dir"/${app,,}.jar
+                                mv -f /tmp/${app}.jar "$dir"/${app}.jar
                                 sudo systemctl start ${app,,}.service
                                 sleep 2
                                 stat=$(sudo systemctl show -p ActiveState --value ${app,,})
                                 if [ "$stat" == "active" ]; then
                                         whiptail --title " ok! (￣-￣)ゞ " --msgbox "Update complete !" $H $W 3>&1 1>&2 2>&3
                                 else
-                                        whiptail --title " Σ(‘◉⌓◉’) " --msgbox "ERROR ! Check logs" $H $W 3>&1 1>&2 2>&3
+                                        whiptail --title " Σ(‘◉⌓◉’) " --msgbox "Failed to start service after update. \nCheck logs... /nBad luck." $H $W 3>&1 1>&2 2>&3
                                         exit 1
                                 fi
                         else
@@ -180,7 +178,7 @@ if [ "$menu" -eq 3 ]; then
         check=$(whiptail --title " (」°ﾛ°)｣ " --checklist \
 "What exactly do you want to remove?" $H $W 5 3>&1 1>&2 2>&3 \
 "1" "Atsumeru server service" ON \
-"2" "Server directory" OFF \
+"2" "Server directory !!! will delete all files in $dir !!!" OFF \
 "3" "Purge OpenJRE 11" OFF)
 
         if [[ "$check" =~ .*1.* ]]; then
