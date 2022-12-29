@@ -33,6 +33,13 @@ fi
 
 # ------------------------------------------------------------ menu = 1 ------------------------------------------------------------
 if [ "$menu" -eq 1 ]; then
+
+stat=$(sudo systemctl show -p ActiveState --value ${app,,})
+if [ "$stat" == "active" ]; then
+        whiptail --msgbox --title " Σ(･ิ¬･ิ) " "Wait a minute! But atsumeru is already working for you! \nMaybe you want to check the update?" $H $W 3>&1 1>&2 2>&3
+        exit
+fi
+
 # Web server port number request
 us_port=$(whiptail --title " へ_(‾◡◝ )> " --inputbox "Enter the port for atsumeru web service (press ENTER if port 31337 suits you)" $H $W 3>&1 1>&2 2>&3)
 
@@ -61,6 +68,7 @@ else
                 $update_
                 $install_ openjdk-11-jre -y
         else
+                whiptail --title " ★｡･:¯\(ツ)/¯:･ﾟ★ " --msgbox "Atsumeru can't work without java..." $H $W 3>&1 1>&2 2>&3
                 exit
         fi
 fi
@@ -70,7 +78,7 @@ sudo useradd "${user}" -d "${dir}" -g "$USER" -N -m
 
 # Allow the user running the script to change the directory ${dir} atsu
 sudo chmod -R 774 "${dir}"
-
+echo "Please wait a minute..."
 # Downloading the last version of the fire engine from github
 curl -s https://api.github.com/repos/${repoowner}/${app}/releases/latest | grep "browser_download_url.*.jar" |  cut -d : -f 2,3 |  tr -d \" |  wget -q -O "${dir}"/${app}.jar -i -
 
@@ -140,6 +148,7 @@ fi
 if [ "$menu" -eq 2 ]; then
         stat=$(sudo systemctl show -p ActiveState --value ${app,,})
         if [ "$stat" == "active" ]; then
+                echo "Please wait a minute..."
                 curl -s https://api.github.com/repos/${repoowner}/${app}/releases/latest | grep "browser_download_url.*.jar" |  cut -d : -f 2,3 |  tr -d \" |  wget -q -O /tmp/${app}.jar -i -
                 # Check atsumeru version
                 CurrV=$(unzip -p -c "$dir"/"$app".jar META-INF/MANIFEST.MF | grep -oP 'Implementation-Version: \K\d+.*\b')
@@ -149,7 +158,7 @@ if [ "$menu" -eq 2 ]; then
                 else
                         printf -v versions '%s\n%s' "$CurrV" "$ExpecV"
                         if [[ $versions = "$(sort -V <<< "$versions")" ]]; then
-                                echo 'update run!'
+                                echo 'Update run!'
                                 sudo systemctl stop ${app,,}.service
                                 mv -f /tmp/${app}.jar "$dir"/${app}.jar
                                 sudo systemctl start ${app,,}.service
@@ -195,5 +204,7 @@ if [ "$menu" -eq 3 ]; then
                 sudo apt purge openjdk-11-jre -y
                 sudo apt autopurge -y
         fi
+
+        whiptail --title " (o^▽^o) " --msgbox "Removal completed.\nThank you for using Atsumeru!" $H $W 3>&1 1>&2 2>&3
 fi
 # ------------------------------------------------------------ end menu = 3 ------------------------------------------------------------
