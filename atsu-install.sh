@@ -129,5 +129,5 @@ then
         exit
 else
         adr=$(hostname -I | awk '{ print $1 }')
-        whiptail --msgbox --title " (◕‿◕) " "< Admin > user created with password < ${pass##*:} >\nThe server is available at: < http://""$adr":"$port"" > \n\n\nDon't forget to change your password!" $H $W 3>&1 1>&2 2>&3
+        whiptail --msgbox --title " (◕‿◕) " "< Admin > user created with password < ${pass##*:} >\nThe server is available at: < http://""$adr":"$port"" > \nUse it for authorization through Atsumeru manager.\n\nDon't forget to change your password!" $H $W 3>&1 1>&2 2>&3
 fi
