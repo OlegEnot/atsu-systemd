@@ -1,4 +1,4 @@
-## Atsumeru server - install/unistall systemd service for BASH
+## Atsumeru server - install/update/unistall systemd service for BASH
 
 Download the install/uninstall/update script and run it (I strongly recommend that you run it as a non-root user):
 ```shell
